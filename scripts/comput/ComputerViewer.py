@@ -6,6 +6,7 @@
 
 from data import *
 from html_ids import *
+from fields import *
 from ComputerSelector import ComputerSelector
 
 
@@ -39,19 +40,19 @@ def get_radio_val( name ) :
 # First handle some special cases: e.g. analogs have no base.
 # UX is terrible without this
 def infer_predicates(data, name) :
-    if name == 'programmables' :
+    if name == Model.programmables :
         data = constrain_single_program(data)
-    elif name == 'universal' :
+    elif name == Model.universal :
         data = constrain_turing(data)
-    elif name == 'transistorised' :
+    elif name == Model.transistorised :
         data = constrain_transistor(data)
-    elif name == 'stored' :
+    elif name == Model.stored :
         data = constrain_stored(data)
-    elif name == 'gui' :
+    elif name == Model.gui :
         data = constrain_gui(data)
-    elif name == 'base' :
+    elif name == Model.base :
         data = constrain_digital(data)
-    elif name == 'representation' :
+    elif name == Model.representation :
         data = constrain_analogue(data)
 
     return data
@@ -64,7 +65,7 @@ def constrain(id, isChecked=True) :
 def constrain_analogue(data):
     elements = document.getElementsByName(BASE)
 
-    if data['representation'] == ANALOG :
+    if data[Model.representation] == Representation.ANALOG :
         for el in elements :
             el.checked = False
             el.disabled = True
@@ -76,48 +77,48 @@ def constrain_analogue(data):
 
 
 def constrain_digital(data) :
-    if data['base'] is not "" :
+    if data[Model.base] is not "" :
         constrain(digId)
-        data['representation'] = DIGITAL
+        data[Model.representation] = Representation.DIGITAL
     return data
 
 
 def constrain_single_program(data) :
-    if data['programmables'] == FIXIE : 
+    if data[Model.programmables] == Programmables.FIXIE : 
         constrain(generalId, False)
-        data['universal'] = SPECIAL
+        data[Model.universal] = Universal.SPECIAL
         constrain(specialId)
-        data['stored'] = NOSTORE
-        constrain('nonstor')
+        data[Model.stored] = StoredProgram.STRUCTURAL
+        constrain(notStoredId)
 
     return data
 
 
 def constrain_turing(data) :
-    if data['universal'] == TURING :
+    if data[Model.universal] == Universal.TURING :
         constrain(programId)
-        data['programmables'] = PROG_YES
+        data[Model.programmables] = Programmables.GRAMMABLE
     return data
 
 
 def constrain_transistor(data) :
-    if data['transistorised'] == TRANSIST :
+    if data[Model.transistorised] == Transistorised.TRANSIST :
         constrain(electroId)
-        data['signals'] = ELECTRO
+        data[Model.signals] = Signals.ELECTRO
     return data
     
 
 def constrain_stored(data) :
-    if data['stored'] == STORED :
+    if data[Model.stored] == StoredProgram.STORED :
         constrain(programId)
-        data['programmables'] = PROG_YES
+        data[Model.programmables] = Programmables.GRAMMABLE
     return data
 
 
 def constrain_gui(data) :
-    if data['gui'] == GUI :
+    if data[Model.gui] == Gui.GUI :
         constrain(electroId)
-        data['signals'] = ELECTRO
+        data[Model.signals] = Signals.ELECTRO
     return data
 
 
@@ -132,15 +133,15 @@ def init_app() :
         isAppInitialised = True
 
 
-def set_computer(computerDict) :
-    name = "the " + computerDict['name']
+def set_computer(computer) :
+    name = "the " + computer[Model.name]
     set_html(resultName, name)
-    who = "by " + computerDict['protagonists']
+    who = "by " + computer[Model.protagonists]
     set_html(resultWho, who)
     when = "<br>fits the bill.<br><br>It was first operational " \
-            + computerDict['date'] + "."
+            + computer[Model.date] + "."
     set_html(resultDate, when)
-    set_image(computerDict['name'])
+    set_image(computer[Model.name])
 
 
 def set_html(id, result) :
